@@ -1,4 +1,6 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,7 +14,7 @@ public class Main {
     // Uncomment this block to pass the first stage
     ServerSocket serverSocket = null;
     Socket clientSocket = null;
-    int port = 6579;
+    int port = 6379;
     try {
       serverSocket = new ServerSocket(port);
       // Since the tester restarts your program quite often, setting SO_REUSEADDR
@@ -21,8 +23,12 @@ public class Main {
       // Wait for connection from client.
       clientSocket = serverSocket.accept();
       OutputStream writer = clientSocket.getOutputStream();
-      writer.write("+PONG\\r\\n".getBytes()); // ");
-      writer.flush();
+      BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+      String message = reader.readLine(); // Read a line of text from the client
+      System.out.println("Received message from client: " + message);
+      writer.write("+PONG\r\n".getBytes());
+      writer.flush(); // Ensure data is sent over the network
+
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {
