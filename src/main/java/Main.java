@@ -24,10 +24,15 @@ public class Main {
       clientSocket = serverSocket.accept();
       OutputStream writer = clientSocket.getOutputStream();
       BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-      String message = reader.readLine(); // Read a line of text from the client
-      System.out.println("Received message from client: " + message);
-      writer.write("+PONG\r\n".getBytes());
-      writer.flush(); // Ensure data is sent over the network
+      String input;
+      while ((input = reader.readLine()) != null) {
+        if (!input.equals("PING")) {
+          // System.out.println("Received message from client: " + input);
+          continue;
+        }
+        writer.write("+PONG\r\n".getBytes());
+        writer.flush();
+      }
 
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
