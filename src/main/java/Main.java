@@ -13,33 +13,28 @@ public class Main {
 
     // Uncomment this block to pass the first stage
     ServerSocket serverSocket = null;
-    Socket clientSocket = null;
     int port = 6379;
     try {
       serverSocket = new ServerSocket(port);
       // Since the tester restarts your program quite often, setting SO_REUSEADDR
       // ensures that we don't run into 'Address already in use' errors
       serverSocket.setReuseAddress(true);
-      // Wait for connection from client.
-      clientSocket = serverSocket.accept();
-      OutputStream writer = clientSocket.getOutputStream();
-      BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-      String input;
-      while ((input = reader.readLine()) != null) {
-        if (!input.equals("PING")) {
-          // System.out.println("Received message from client: " + input);
-          continue;
-        }
-        writer.write("+PONG\r\n".getBytes());
-        writer.flush();
+
+      while (true) {
+        Socket clientSocket = serverSocket.accept();
+        System.out.println("New client connected: " + clientSocket.getInetAddress());
+
+        // Start a new thread to handle the client connection
+        Thread thread = new Thread(new ClientHandler(clientSocket));
+        thread.start();
       }
 
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     } finally {
       try {
-        if (clientSocket != null) {
-          clientSocket.close();
+        if (serverSocket != null) {
+          serverSocket.close();
         }
       } catch (IOException e) {
         System.out.println("IOException: " + e.getMessage());
